@@ -22,7 +22,7 @@ debug: false  # useful to debug training, no wandb
 
 lr: 0.0001
 weight_decay: 0.01
-extra_aug: 10  # number of augmented datasets (SIRENs trained on same images from random inits) to use
+extra_aug: 0  # number of augmented datasets (SIRENs trained on same images from random inits) to use
 loss_type: l2  # l2 or l1
 
 group: ${hydra:runtime.dset}  # wandb group runs in a sweep

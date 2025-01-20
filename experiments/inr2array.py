@@ -280,8 +280,8 @@ def train_and_eval(cfg):
     if cfg.aligned_sampling:
         assert cfg.extra_aug > 0, "Aligned sampling only makes sense with extra augmentations."
         sampler = AlignedSampler(trainset, len(trainset) // (cfg.extra_aug + 1))
-    trainloader = DataLoader(trainset, batch_size=cfg.bs, shuffle=sampler is None, num_workers=8, drop_last=True, sampler=sampler)
-    valloader = DataLoader(valset, batch_size=cfg.bs, shuffle=False, num_workers=8, drop_last=True)
+    trainloader = DataLoader(trainset, batch_size=cfg.bs, shuffle=sampler is None, num_workers=4, drop_last=True, sampler=sampler)
+    valloader = DataLoader(valset, batch_size=cfg.bs, shuffle=False, num_workers=4, drop_last=True)
 
     spec = network_spec_from_wsfeat(WeightSpaceFeatures(*next(iter(trainloader))[0]).to("cpu"), set_all_dims=True)
     nfnet: AutoEncoder = hydra.utils.instantiate(cfg.model, spec, valset.data_type).to("cuda")
@@ -360,10 +360,10 @@ def train_and_eval(cfg):
     print("Testing")
     nfnet.load_state_dict(torch.load(os.path.join(cfg.output_dir, "best_nfnet.pt")))
     testset: SirenAndOriginalDataset = hydra.utils.instantiate(cfg.dset, split="test")
-    testloader = DataLoader(testset, batch_size=cfg.bs, shuffle=False, num_workers=8, drop_last=True)
+    testloader = DataLoader(testset, batch_size=cfg.bs, shuffle=False, num_workers=4, drop_last=True)
     test_loss = evaluate(nfnet, testloader, orig_batch_siren, cfg.true_target, cfg.loss_type)
     trainset: SirenAndOriginalDataset = hydra.utils.instantiate(cfg.dset, split="train")
-    trainloader = DataLoader(trainset, batch_size=cfg.bs, shuffle=False, num_workers=8, drop_last=True)
+    trainloader = DataLoader(trainset, batch_size=cfg.bs, shuffle=False, num_workers=4, drop_last=True)
     train_loss = evaluate(nfnet, trainloader, orig_batch_siren, cfg.true_target, cfg.loss_type)
     print(f"Test loss: {test_loss.item():.3f}")
     if not cfg.debug: wandb.log({"test/loss": test_loss.item(), "train/final_loss": train_loss.item()}, step=cfg.total_steps)

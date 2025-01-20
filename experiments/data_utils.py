@@ -14,6 +14,11 @@ import pandas as pd
 
 from nfn.common import state_dict_to_tensors
 
+from six.moves import urllib    
+opener = urllib.request.build_opener()
+opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+urllib.request.install_opener(opener)
+
 
 def cycle(loader):
     while True:

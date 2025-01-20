@@ -17,10 +17,12 @@ def main(args):
     print('\n\n\n', cfg.dset.siren_path, cfg.dset.data_path)
     dset = SirenAndOriginalDataset(cfg.dset.siren_path, "randinit_smaller", cfg.dset.data_path)
     loader = DataLoader(dset, batch_size=cfg.bs, shuffle=False, num_workers=8, drop_last=False)
+    print("Dataset Path:" , cfg.dset.data_path)
+    print("Dataset Size: ", len(loader) * cfg.bs)
 
     # load weight features
     spec = network_spec_from_wsfeat(WeightSpaceFeatures(*next(iter(loader))[0]).to("cpu"), set_all_dims=True)
-    nfnet = hydra.utils.instantiate(cfg.model, spec, dset_data_type=dset.data_type, vae=False, compile=False).to("cuda")
+    nfnet = hydra.utils.instantiate(cfg.model, spec, dset_data_type=dset.data_type, compile=False).to("cuda")
     nfnet.load_state_dict(torch.load(os.path.join(args.rundir, "best_nfnet.pt")))
 
     nfnet.eval()
@@ -55,3 +57,5 @@ if __name__ == "__main__":
     parser.add_argument("--rundir", type=str, required=True)
     parser.add_argument("--output_path", type=str, required=True)
     main(parser.parse_args())
+
+# python -m experiments.make_latent_dset --rundir "./outputs/2025-01-12/19-49-16" --output_path "/users/ksaripal/data/ksaripal/nft-embeddings/mnist-embeddings.pt"

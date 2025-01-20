@@ -6,3 +6,5 @@ build/
 experiments/data
 outputs/
 wandb/
+**/data/**
+*.png
